@@ -1,1 +1,1 @@
-from .hog import hog
+from .hog import hog, hog_render

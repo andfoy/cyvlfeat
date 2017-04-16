@@ -1,5 +1,11 @@
 import numpy as np
-from .cyhog import cy_hog
+from .cyhog import cy_hog, cy_hog_render
+
+
+def hog_render(hog_feature, variant='UoCTTI', n_orientations=9, verbose=False):
+    hog_feature = np.require(hog_feature, dtype=np.float32, requirements='C')
+    is_UoCTTI = variant == 'UoCTTI'
+    return cy_hog_render(hog_feature, n_orientations, is_UoCTTI, verbose)
 
 
 def hog(image, cell_size, variant='UoCTTI', n_orientations=9,

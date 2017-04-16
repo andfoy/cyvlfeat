@@ -10,8 +10,37 @@ cimport cython
 
 # Import the header files
 from cyvlfeat._vl.hog cimport *
-from cyvlfeat._vl.host cimport VL_FALSE
+from cyvlfeat._vl.host cimport VL_FALSE, VL_TRUE
 from cyvlfeat.cy_util cimport py_printf, set_python_vl_printf
+
+@cython.boundscheck(False)
+cpdef cy_hog_render(float[:, :, ::1] data, int n_orientations, int variant,
+                    bint verbose):
+    set_python_vl_printf()
+
+    cdef:
+        VlHog* hog = vl_hog_new(<VlHogVariant>variant,
+                                n_orientations, VL_TRUE)
+        int height = data.shape[0]
+        int width = data.shape[1]
+        int num_channels = data.shape[2]
+        vl_size glyph_size = vl_hog_get_glyph_size(hog)
+        vl_size image_height = glyph_size * height
+        vl_size image_width = glyph_size * width
+        float[:, :] out_image
+
+    if verbose:
+        py_printf('vl_hog: descriptor: [%d x %d x %d]\n', height, width,
+                                                       num_channels)
+        py_printf('vl_hog: glyph image: [%d x %d]\n', image_height, image_width)
+        py_printf('vl_hog: number of orientations: %d\n', n_orientations)
+        py_printf('vl_hog: variant: %s\n',
+                  'DalalTriggs' if variant == VlHogVariantDalalTriggs
+                  else 'UOCTTI')
+
+    out_image = np.empty((image_height, image_width), dtype=np.float32, order='C')
+    vl_hog_render(hog, &out_image[0,0], &data[0, 0, 0], height, width)
+    return np.asarray(out_image)
 
 
 @cython.boundscheck(False)
