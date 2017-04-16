@@ -40,6 +40,8 @@ cpdef cy_hog_render(float[:, :, ::1] data, int n_orientations, int variant,
 
     out_image = np.empty((image_height, image_width), dtype=np.float32, order='C')
     vl_hog_render(hog, &out_image[0,0], &data[0, 0, 0], height, width)
+    vl_hog_delete(hog)
+
     return np.asarray(out_image)
 
 
